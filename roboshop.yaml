@@ -1,0 +1,15 @@
+- name: create ec2 and route53 records
+  hosts: all
+  connection: local
+  vars:
+    sg_id: sg-0cecc7f37156227f4
+    ami_id: ami-0220d79f3f480ecf5
+    environmnet: dev
+    instances:
+    - mongodb
+    - catalogue
+  tasks:
+  - name: create ec2 instance
+    amazon.aws.ec2.instance:
+      key_name: "{{ key_name }}"
+      instance_type: ""
