@@ -36,26 +36,26 @@
   - name: create route53 records
     amazon.aws.route53:
       state: present
-      overwrite: true
       zone: "{{ domain_name }}"
       record: "{{ item.item }}-{{ env }}.{{ domain_name }}" #mongodb-dev.kcdevops.online, frontend-dev.kcdevops.online
       type: A
       ttl: 1
       value: "{{ item.instances[0].private_ip_address }}"
       wait: false
-    loop: "{{ ec2_output.results }}"
-    when: action == 'create'
+      overwrite: true
+    loop: "{{ ec2_output.results }}" # list
+    when: action == "create"
   
   - name: create public IP route53 records
     amazon.aws.route53:
       state: present
-      overwrite: true
       zone: "{{ domain_name }}"
       record: "roboshop-{{ env }}.{{ domain_name }}" #roboshop-dev.kcdevops.online
       type: A
       ttl: 1
       value: "{{ item.instances[0].public_ip_address }}"
       wait: false
+      overwrite: true
     loop: "{{ ec2_output.results }}"
     when:  # and
      - item.item == 'frontend'
