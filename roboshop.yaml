@@ -8,9 +8,6 @@
     domain_name: kcdevops.online
     env: dev
     action: create
-    instances:
-    - mongodb
-    - catalogue
   tasks:
   - name: create ec2 instance
     amazon.aws.ec2_instance:
@@ -40,7 +37,7 @@
       record: "{{ item.item }}-{{ env }}.{{ domain_name }}" #mongodb-dev.kcdevops.online, frontend-dev.kcdevops.online
       type: A
       ttl: 1
-      value: "{{ item.instances[0].private_ip_address }}"
+      value: "{{ item.private_ip_address }}"
       wait: false
       overwrite: true
     loop: "{{ ec2_output.results }}" # list
@@ -53,7 +50,7 @@
       record: "roboshop-{{ env }}.{{ domain_name }}" #roboshop-dev.kcdevops.online
       type: A
       ttl: 1
-      value: "{{ item.instances[0].public_ip_address }}"
+      value: "{{ item.public_ip_address }}"
       wait: false
       overwrite: true
     loop: "{{ ec2_output.results }}"
