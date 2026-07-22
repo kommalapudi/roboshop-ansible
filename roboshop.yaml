@@ -8,14 +8,17 @@
     domain_name: kcdevops.online
     env: dev
     action: create
+    instances:
+    - mongodb
+    - catalogue
   tasks:
   - name: create ec2 instance
     amazon.aws.ec2_instance:
       #key_name: "{{ key_name }}"
       instance_type: "t3.micro"
+      security_group: "{{ sg_id }}"
       image_id: "{{ ami_id }}"
       name: "{{ item }}-{{ env }}"
-      wait: false
       tags:
         project: roboshop
         component: "{{ item }}"
@@ -37,20 +40,20 @@
       record: "{{ item.item }}-{{ env }}.{{ domain_name }}" #mongodb-dev.kcdevops.online, frontend-dev.kcdevops.online
       type: A
       ttl: 1
-      value: "{{ item.private_ip_address }}"
+      value: "{{ item.instance[0].private_ip_address }}"
       wait: false
       overwrite: true
     loop: "{{ ec2_output.results }}" # list
     when: action == "create"
   
-  - name: create public IP route53 records
+  - name: create r53 record for frontend
     amazon.aws.route53:
       state: present
       zone: "{{ domain_name }}"
       record: "roboshop-{{ env }}.{{ domain_name }}" #roboshop-dev.kcdevops.online
       type: A
       ttl: 1
-      value: "{{ item.public_ip_address }}"
+      value: "{{ item.instances[0].public_ip_address }}"
       wait: false
       overwrite: true
     loop: "{{ ec2_output.results }}"
